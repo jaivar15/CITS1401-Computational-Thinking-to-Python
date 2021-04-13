@@ -16,9 +16,11 @@ def main(csvfile, country, stats_type):
     location, day, month, year, new_cases = data
     
     if stats_type.lower().strip() == 'statistics':
-        minimum, maximum, average, std_dev = process_data(country, location, day, month, year, new_cases)
+        process_data(country, location, day, month, year, new_cases)
+    elif stats_type.lower().strip() == 'correlation':
+        correlation_process_data(country, location, day, month, year, new_cases)
     
-    return minimum, maximum, average, std_dev
+    
 
 def open_file(filename):
     data = None
@@ -132,7 +134,7 @@ def process_data(country, location, day, month, year, new_cases):
     print(std_dev)
     
     
-
+    
 
 
 
@@ -150,4 +152,97 @@ def process_data(country, location, day, month, year, new_cases):
 # average and std dev not matching for May, June for sample data of France which doesn't make sense
     return minimum, maximum, average, std_dev
 
-minimum, maximum, average, std_dev = main('coviddata.csv', 'france', 'statistics')
+
+
+
+
+
+def correlation_process_data(country, location, day, month, year, new_cases):
+    country_A = country[0].lower().strip()
+    country_B = country[-1].lower().strip()
+
+    length = len(location)
+
+    months_list_A = [[],[],[],[],[],[],[],[],[],[],[],[]]
+    months_list_B = [[],[],[],[],[],[],[],[],[],[],[],[]]
+
+
+    for i in range(length):
+        if country_A == location[i]:
+            months_list_A[month[i]-1].append(new_cases[i])
+
+    for i in range(length):
+        if country_B == location[i]:
+            months_list_B[month[i]-1].append(new_cases[i])
+
+
+    minimum_A = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    maximum_A = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    average_A = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    std_dev_A = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    minimum_B = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    maximum_B = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    average_B = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    std_dev_B = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
+    for rows in range(len(months_list_A)):
+        min_val = float('inf')
+        for columns in range(0,len(months_list_A[rows])):
+            if months_list_A[rows][columns] > 0:
+                if months_list_A[rows][columns] < min_val:
+                    min_val = months_list_A[rows][columns]
+        minimum_A[rows] = min_val
+        if minimum_A[rows] == float('inf'):
+            minimum_A[rows] = 0
+    print(minimum_A)
+
+    for rows in range(len(months_list_B)):
+        min_val = float('inf')
+        for columns in range(0,len(months_list_B[rows])):
+            if months_list_B[rows][columns] > 0:
+                if months_list_B[rows][columns] < min_val:
+                    min_val = months_list_B[rows][columns]
+        minimum_B[rows] = min_val
+        if minimum_B[rows] == float('inf'):
+            minimum_B[rows] = 0
+    print(minimum_B)
+
+    sum_A = 0
+    for rows in range(len(minimum_A)):
+        sum_A = sum_A + minimum_A[rows]
+    average_A = sum_A/len(minimum_A)
+    print(average_A)
+    sum_B = 0
+    for rows in range(len(minimum_B)):
+        sum_B = sum_B + minimum_B[rows]
+    average_B = sum_B/len(minimum_B)
+    print(average_B)
+
+    minimum_A = [x - average_A for x in minimum_A]
+    minimum_B = [x - average_B for x in minimum_B]
+
+    minimum_AB = [minimum_A[i]*minimum_B[i] for i in range(len(minimum_A))]
+
+    total_A = 0
+    for element in range(0, len(minimum_A)):
+        total_A = total_A + (minimum_A[element])**2
+    total_A = total_A**0.5
+
+    total_B = 0
+    for element in range(0, len(minimum_B)):
+        total_B = total_B + (minimum_B[element])**2
+    total_B = total_B**0.5
+
+
+    multiply = total_A * total_B
+    print(multiply)
+    total = 0
+    for element in range(0, len(minimum_AB)):
+        total = total + minimum_AB[element]
+
+    a = round((total/multiply),4)
+    print(a)
+
+
+main('coviddata.csv', ['france', 'italy'], 'correlation')
