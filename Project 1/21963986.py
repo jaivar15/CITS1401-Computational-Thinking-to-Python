@@ -1,5 +1,5 @@
 '''
-    CITS1401 Computational Thinking with Ptyhon: Project 1
+    CITS1401 Computational Thinking with Python: Project 1
     Student Name: Varun Jain 
     Student Number: 21963986
     Due Date: Friday 16th April
@@ -269,8 +269,5 @@ def process_data_for_correlation(country, location, month, new_cases):
     std_dev_correlation = correlation_value_for_stats(std_dev_A, std_dev_B)
 
     return min_correlation, max_correlation, avg_correlation, std_dev_correlation
-    
-
-
 
 
