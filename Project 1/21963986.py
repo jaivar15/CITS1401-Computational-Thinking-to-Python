@@ -270,4 +270,5 @@ def process_data_for_correlation(country, location, month, new_cases):
 
     return min_correlation, max_correlation, avg_correlation, std_dev_correlation
 
-
+rc5,rc6,rc7,rc8 = main('Covid-data-for-project_1_testing_2.csv',['china',"italy"], "correlation")
+print(rc5,rc6,rc7,rc8)
