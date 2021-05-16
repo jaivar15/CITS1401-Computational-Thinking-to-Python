@@ -1,3 +1,18 @@
+def main(filename):
+    continent, location, date, new_cases, new_deaths = extact_columns(filename)
+    new_cases_2 = fix_columns_new_cases(new_cases)
+    new_deaths_2 = fix_columns_new_deaths(new_deaths)
+    
+    unique_country_names = unique_set(location)
+    country = store_into_dictonary(location, unique_country_names, date, new_cases_2, new_deaths_2)
+    
+    unique_coun_names = unique_set(continent)
+    country_2 = store_into_dictonary_cont(continent, unique_coun_names, date, new_cases_2, new_deaths_2)
+    return country, country_2
+
+
+
+
 def read_csv_file(filename):
     try:
         file = open(filename, "r")
@@ -15,7 +30,7 @@ def extract_headers(filename):
     location_index = line.index("location") if "location" in line else exit("None")
     date_index = line.index("date") if "date" in line else exit("None")
     new_cases_index = line.index("new_cases") if "new_cases" in line else exit("None")
-    new_deaths_index = line.index("new_cases") if "new_cases" in line else exit("None")
+    new_deaths_index = line.index("new_deaths") if "new_deaths" in line else exit("None")
 
     return continent_index, location_index, date_index, new_cases_index, new_deaths_index
 
@@ -66,6 +81,16 @@ def compute(cases, average):
             division.append(0)
     return division
 
+def compute_for_continents(cases):
+    division = []
+    number_of_days = [31,28,31,30,31,30,31,31,30,31,30,31]
+    for index in range(12):
+        try:
+            division.append(cases[index]/number_of_days[index])
+        except ZeroDivisionError:
+            division.append(0)
+    return division
+    
 
 def store_into_dictonary(location, unique_country_names, date, new_cases, new_deaths):
     results = {}
@@ -74,6 +99,22 @@ def store_into_dictonary(location, unique_country_names, date, new_cases, new_de
         results[each_country] = [new_cases_per_month, new_deaths_per_month, avg_new_cases_montly, avg_new_deaths_monthly]
     return results
 
+def store_into_dictonary_cont(location, unique_country_names, date, new_cases, new_deaths):
+    results = {}
+    for each_country in unique_country_names:
+        new_cases_per_month, new_deaths_per_month, avg_new_cases_montly, avg_new_deaths_monthly = compute_lists_cont(each_country, location, date, new_cases, new_deaths)
+        results[each_country] = [new_cases_per_month, new_deaths_per_month, avg_new_cases_montly, avg_new_deaths_monthly]
+    return results
+
+#def store_into_continents_dictonary(location, unique_country_names, date, new_cases, new_deaths):
+ #   results = {}
+  #  for each_country in unique_country_names:
+   #     new_cases_per_month, new_deaths_per_month, avg_new_cases_montly, avg_new_deaths_monthly = compute_for_continents(each_country, location, date, new_cases, new_deaths)
+    #    results[each_country] = [new_cases_per_month, new_deaths_per_month, avg_new_cases_montly, avg_new_deaths_monthly]
+    #print(new_deaths_per_month)
+    #return results
+
+
 def compute_lists(each_country, location, date, new_cases, new_deaths):
     new_cases_per_month, new_death_per_month, average_per_month = confirmed_deaths_cases_per_month(each_country, location, date, new_cases, new_deaths)
     new_cases_average_for_each_month=compute(new_cases_per_month, average_per_month)
@@ -81,7 +122,22 @@ def compute_lists(each_country, location, date, new_cases, new_deaths):
     average__new_cases_per_month, average__death_cases_per_month = confirmed_deaths_average(each_country, date, location, new_cases, new_deaths, new_cases_average_for_each_month, new_deaths_average_for_each_month)
     return new_cases_per_month, new_death_per_month, average__new_cases_per_month, average__death_cases_per_month
 
-# def process(location):
+
+
+def compute_lists_cont(each_country, location, date, new_cases, new_deaths):
+    new_cases_per_month, new_death_per_month, average_per_month = confirmed_deaths_cases_per_month(each_country, location, date, new_cases, new_deaths)
+    new_cases_average_for_each_month=compute_for_continents(new_cases_per_month)
+    new_deaths_average_for_each_month=compute_for_continents(new_death_per_month)
+    average__new_cases_per_month, average__death_cases_per_month = confirmed_deaths_average(each_country, date, location, new_cases, new_deaths, new_cases_average_for_each_month, new_deaths_average_for_each_month)
+    return new_cases_per_month, new_death_per_month, average__new_cases_per_month, average__death_cases_per_month
+
+
+
+
+
+
+
+
 #     unique_countries_names = unique_set(location)
 #     store_into_dictonary(unique_country_names)
 #     confirmed_deaths_cases_per_month()
@@ -103,7 +159,7 @@ def confirmed_deaths_cases_per_month(country_name, location, date, new_cases, ne
                 average_per_month[day-1] = average_per_month[day-1] + 1
             else:
                 pass
-
+    
     return new_cases_per_month, new_death_per_month, average_per_month
 
 def confirmed_deaths_average(country_name, date, location, new_cases, new_deaths, new_cases_average_for_each_month, new_deaths_average_for_each_month):
@@ -121,11 +177,5 @@ def confirmed_deaths_average(country_name, date, location, new_cases, new_deaths
     return average__new_cases_per_month, average__death_cases_per_month
 
 
-def main():
-    continent, location, date, new_cases, new_deaths = extact_columns("coviddata.csv")
-    new_cases_2 = fix_columns_new_cases(new_cases)
-    new_deaths_2 = fix_columns_new_deaths(new_deaths)
-    unique_country_names = unique_set(location)
-    country = store_into_dictonary(location, unique_country_names, date, new_cases_2, new_deaths_2)
-    print(country['italy'])
-main()
+
+
